@@ -1,8 +1,85 @@
 import sublime, sublime_plugin
-from string import ascii_lowercase as lowerletters
 
-valid = "{} &,".format(lowerletters)
+from string import ascii_lowercase as lower, digits
+
+valid = " !&,{}?{}".format(digits, lower)
 letters = [
+[" ",
+ " ",
+ " ",
+ " ",
+ " "],
+["██",
+ "██",
+ "██",
+ "",
+ "██"],
+[" ███",
+ "██ ██",
+ " ███  █",
+ "██ ███",
+ " ███ █"],
+["",
+ "",
+ "",
+ "",
+ " ███",
+ "██"],
+[" █████",
+ "██   ██",
+ "██ █ ██",
+ "██   ██",
+ " █████"],
+["███",
+ " ██",
+ " ██",
+ " ██",
+ "████"],
+[" ████",
+ "██  ██",
+ "   ██",
+ "  ██ ",
+ " █████"],
+["██████",
+ "    ██",
+ " █████",
+ "    ██",
+ "██████"],
+["██  ██",
+ "██  ██",
+ "██████",
+ "    ██",
+ "    ██"],
+["██████",
+ "██",
+ "█████",
+ "    ██",
+ "██████"],
+["██████",
+ "██",
+ "█████",
+ "██  ██",
+ " ████"],
+["██████",
+ "    ██",
+ "   ██",
+ "  ██",
+ " ██"],
+[" ████ ",
+ "██  ██",
+ " ████ ",
+ "██  ██",
+ " ████ "],
+[" ████ ",
+ "██  ██",
+ " █████",
+ "    ██",
+ "    ██"],
+[" ████",
+ "██  ██",
+ "   ██",
+ "      ",
+ "  ██"],
 [" █████",
  "██   ██",
  "███████",
@@ -133,23 +210,7 @@ letters = [
  "   ███",
  "  ███",
  " ███",
- "███████"],
-[" ",
- " ",
- " ",
- " ",
- " "],
-[" ███",
- "██ ██",
- " ███  █",
- "██ ███",
- " ███ █"],
-["",
- "",
- "",
- "",
- " ███",
- "██"]
+ "███████"]
 ]
 
 
@@ -164,10 +225,10 @@ def padHorz(lett):
    """
    leng = max([len(line) for line in lett])+1
    padd = []
-   for i in lett:
-      while len(i) < leng:
-         i += " "
-      padd.append(i)
+   for line in lett:
+      while len(line) < leng:
+         line += " "
+      padd.append(line)
    return padd
 def padVert(li):
    """Vertically pads big letters
@@ -178,10 +239,14 @@ def padVert(li):
    Returns:
       list -- Big letters with space padding below
    """
+   maxh = max([len(lett) for lett in li])
+
    for i in range(len(li)):
-      leng = max([len(line) for line in li[i]])
-      li[i].append(" "*leng)
+      h = len(li[i])
+      while(len(li[i]) < maxh):
+         li[i].append(" ")
    return li
+
 def assemble(st):
    """Compiles a raw string to a list of big letters
    
@@ -192,16 +257,30 @@ def assemble(st):
       [type] -- [description]
    """
    st = st.lower()
-   li = [padHorz(letters[valid.index(c)]) for c in st[:-1]]
+
+   li = [letters[valid.index(c)] for c in st]
+   li = padVert(li)
+   li = [padHorz(lett) for lett in li[:-1]]
    li.append(letters[valid.index(st[-1])])
+
    return li
+
 def printLi(li):
    out = []
-   for i in range(6):
+   maxh = max([len(lett) for lett in li])
+   
+   for i in range(maxh):
       out.append([c[i] for c in li])
       out[i] = "".join(out[i])
    return "\n".join(out)
 
+
+class AsciiBlockCommand(sublime_plugin.TextCommand):
+   def run(self, edit):
+      sel = self.view.sel()[0]
+      txt = self.view.substr(sel)
+
+      self.view.replace(edit, sel, printLi(assemble(txt)))
 
 class AsciiBlockCommand(sublime_plugin.TextCommand):
    def run(self, edit):
