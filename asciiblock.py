@@ -281,11 +281,3 @@ class AsciiBlockCommand(sublime_plugin.TextCommand):
       txt = self.view.substr(sel)
 
       self.view.replace(edit, sel, printLi(assemble(txt)))
-
-class AsciiBlockCommand(sublime_plugin.TextCommand):
-   def run(self, edit):
-      sel = self.view.sel()[0]
-      txt = self.view.substr(sel)
-
-      self.view.replace(edit, sel, printLi(assemble(txt)))
-      print(txt)
