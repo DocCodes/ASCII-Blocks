@@ -1,6 +1,7 @@
 import sublime, sublime_plugin
-
 from string import ascii_lowercase as lower, digits
+
+__version__ = "1.2.3"
 
 valid = " !&,{}?{}".format(digits, lower)
 letters = [
